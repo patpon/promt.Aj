@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompt.Aj</title>
+  <meta name="description" content="คลัง Prompt ใช้ซ้ำได้ สำหรับงานโกลด์เบรด ระเบียงบัว วันดีดี และนายหน้า Shopee">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <a class="logo" href="#" id="homeLink">Prompt<span>.Aj</span></a>
+      <p class="sub">เลือกงาน → กรอกช่อง → กดส่งเข้า AI</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="biz-tabs" id="bizTabs" aria-label="เลือกงาน"></nav>
+
+    <section class="toolbar">
+      <div class="search">
+        <span aria-hidden="true">🔍</span>
+        <input id="q" type="search" placeholder="ค้นหา prompt…" autocomplete="off">
+      </div>
+      <button class="btn ghost" id="profileBtn" type="button">🏷️ ข้อมูลงาน</button>
+      <button class="btn ghost" id="addBtn" type="button">＋ เพิ่ม prompt</button>
+    </section>
+
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>ไม่พบ prompt</p>
+  </main>
+
+  <footer class="wrap foot">
+    <div class="foot-actions">
+      <button class="link" id="exportBtn" type="button">⬇️ ส่งออก prompt ของฉัน (JSON)</button>
+      <label class="link">⬆️ นำเข้า JSON<input type="file" id="importFile" accept="application/json,.json" hidden></label>
+    </div>
+    <p>ข้อมูลที่กรอกเก็บในเครื่องนี้เท่านั้น · แนวคิดจาก <a href="https://github.com/f/prompts.chat" target="_blank" rel="noopener">prompts.chat</a></p>
+  </footer>
+
+  <!-- Prompt detail -->
+  <dialog id="detail" class="sheet">
+    <form method="dialog" class="sheet-head">
+      <div>
+        <span class="tag" id="dCat"></span>
+        <h2 id="dTitle"></h2>
+        <p class="muted" id="dDesc"></p>
+      </div>
+      <button class="icon" value="close" aria-label="ปิด">✕</button>
+    </form>
+    <div class="sheet-body">
+      <div class="fields" id="dFields"></div>
+      <div class="preview-wrap">
+        <div class="preview-head">
+          <strong>ตัวอย่าง prompt</strong>
+          <span class="muted small" id="dMissing"></span>
+        </div>
+        <pre class="preview" id="dPreview"></pre>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn primary" id="copyBtn" type="button">📋 คัดลอก</button>
+      <button class="btn" data-ai="chatgpt" type="button">ChatGPT</button>
+      <button class="btn" data-ai="claude" type="button">Claude</button>
+      <button class="btn" data-ai="gemini" type="button">Gemini</button>
+      <span class="spacer"></span>
+      <button class="icon" id="favBtn" type="button" title="ที่ชอบ">☆</button>
+      <button class="icon" id="shareBtn" type="button" title="คัดลอกลิงก์ prompt นี้">🔗</button>
+      <button class="icon" id="resetBtn" type="button" title="ล้างค่าที่กรอก">↺</button>
+      <button class="icon danger" id="delBtn" type="button" title="ลบ prompt นี้" hidden>🗑</button>
+    </div>
+  </dialog>
+
+  <!-- Profile -->
+  <dialog id="profile" class="sheet narrow">
+    <form method="dialog" class="sheet-head">
+      <div>
+        <h2>ข้อมูลงาน <span id="pBiz"></span></h2>
+        <p class="muted">กรอกครั้งเดียว ทุก prompt ในงานนี้จะใช้ข้อมูลนี้อัตโนมัติ</p>
+      </div>
+      <button class="icon" value="close" aria-label="ปิด">✕</button>
+    </form>
+    <div class="sheet-body"><div class="fields" id="pFields"></div></div>
+    <div class="sheet-foot">
+      <button class="btn primary" id="pSave" type="button">บันทึก</button>
+    </div>
+  </dialog>
+
+  <!-- Add prompt -->
+  <dialog id="adder" class="sheet narrow">
+    <form method="dialog" class="sheet-head">
+      <div>
+        <h2>เพิ่ม prompt ของฉัน</h2>
+        <p class="muted">ใช้ <code>{{ชื่อช่อง}}</code> สร้างช่องกรอก, <code>{{ช่อง:ค่าเริ่มต้น}}</code>, <code>{{ช่อง:ก|ข|ค}}</code> = ตัวเลือก, <code>{{@profile}}</code> = ข้อมูลงาน</p>
+      </div>
+      <button class="icon" value="close" aria-label="ปิด">✕</button>
+    </form>
+    <div class="sheet-body">
+      <div class="fields">
+        <label class="field"><span>ชื่อ prompt</span><input id="aTitle" required></label>
+        <label class="field"><span>หมวด</span><input id="aCat" list="catList" placeholder="เช่น IT Support"><datalist id="catList"></datalist></label>
+        <label class="field"><span>คำอธิบายสั้น</span><input id="aDesc"></label>
+        <label class="field"><span>Prompt</span><textarea id="aPrompt" rows="10" placeholder="คุณคือ...&#10;&#10;{{@profile}}&#10;&#10;งาน: {{รายละเอียด}}"></textarea></label>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn primary" id="aSave" type="button">บันทึก</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="prompts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
